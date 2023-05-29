@@ -44,19 +44,23 @@ const widthMenu = ref('0px')
 const width = ref('0px')
 const height = ref('0px')
 const clip = ref('')
+const ypos = ref('0')
 
-const getCursorPosition = (event: { toElement: any; offsetX: number; offsetY: any }): void => {
-  const wm = event.toElement.clientWidth
-  const hm = event.toElement.clientHeight
+const getCursorPosition = (event: MouseEvent) => {
+  const target = event.target as HTMLLIElement;
+  const wm = target.clientWidth
+  const hm = target.clientHeight
   widthMenu.value = `${wm}px`
   if (event.offsetY <= hm) {
     let w = wm - event.offsetX + 5
     width.value = `${w}px`
   }
-  const h = event.toElement.children[0].clientHeight
+  console.log(event)
+  const h = target.children[0]?.clientHeight
   height.value = `${h}px`
-  const yPos = `${(hm / h) * 100}%`
-  clip.value = `polygon(0 ${yPos}, 0 0%, 50% 0, 100% 0, 100% 100%, 50% 100%)`
+  ypos.value = '' + (target.clientHeight / 2) + 'px'
+
+  clip.value = `polygon(100% 0, 0 ${ypos.value}, 100% 100%)`
 }
 </script>
 
@@ -65,55 +69,67 @@ ul,
 li {
   list-style: none;
 }
+
 nav {
   min-height: 100vh;
   align-items: center;
-  .menu {
+
+  ul {
     display: flex;
     flex-direction: column;
-    .item {
-      padding: 0.5rem 1rem;
-      align-items: center;
-      background-color: rgb(30, 35, 58);
-      border-radius: 0.1rem;
-      position: relative;
+
+    .item:hover {
+      background-color: rgb(59, 152, 196);
+
+      &::after {
+        content: '';
+        background-color: red;
+        // background-color: transparent;
+        opacity: 50%;
+        position: absolute;
+        z-index: 1;
+        clip-path: v-bind(clip);
+        height: v-bind(height);
+        width: v-bind(width);
+        right: 0;
+        top: 0;
+      }
 
       .submenu {
-        position: absolute;
-        display: none;
-        flex-direction: column;
-        top: 0;
-        left: v-bind(widthMenu);
-        .subitem {
-          padding: 0.5rem 7rem;
-          background-color: rgb(30, 35, 58);
-          border-radius: 0.1rem;
-          position: relative;
-          &:hover {
-            background-color: rgb(56, 58, 185);
-          }
-        }
-      }
-      &:hover {
-        background-color: rgb(59, 152, 196);
-        &::after {
-          content: '';
-          background-color: red;
-          // background-color: transparent;
-          opacity: 50%;
-          position: absolute;
-          z-index: 1;
-          clip-path: v-bind(clip);
-          height: v-bind(height);
-          width: v-bind(width);
-          right: 0;
-          top: 0;
-        }
-        .submenu {
-          display: flex;
-        }
+        display: flex;
       }
     }
+  }
+
+  ul>.item {
+    padding: 0.5rem 1rem;
+    align-items: center;
+    background-color: rgb(30, 35, 58);
+    border-radius: 0.1rem;
+    position: relative;
+  }
+}
+
+.submenu {
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  top: 0;
+  left: 100%;
+
+  .subitem {
+    padding: 0.5rem 7rem;
+    background-color: rgb(30, 35, 58);
+    border-radius: 0.1rem;
+
+    &:hover {
+      background-color: rgb(56, 58, 185);
+    }
+  }
+
+  &:hover {
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>
